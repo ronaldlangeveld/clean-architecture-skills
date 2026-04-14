@@ -1,0 +1,103 @@
+{
+  "skill_name": "clean-architecture",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm starting a new order management system in Python. Can you help me set up the project structure?",
+      "expected_output": "The agent scaffolds the prescribed Clean Architecture folder layout under src/ (domain/, application/, adapters/, infrastructure/) and explains the dependency rule before writing any framework-specific code.",
+      "assertions": [
+        "Creates src/domain/entities/ and src/domain/value-objects/ directories",
+        "Creates src/application/use-cases/, src/application/interfaces/, src/application/dto/ directories",
+        "Creates src/adapters/controllers/, src/adapters/presenters/, src/adapters/gateways/ directories",
+        "Creates src/infrastructure/persistence/, src/infrastructure/web/, src/infrastructure/external/, src/infrastructure/config/ directories",
+        "Mentions the Dependency Rule (source code dependencies point inward only)",
+        "Does not place business logic inside controllers or ORM models",
+        "References entities.md and use-cases.md for next steps"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Add a CreateOrder feature to my existing app. Users submit an order with items and a shipping address, we validate stock, then persist it.",
+      "expected_output": "The agent reads references/adding-features.md and references/use-cases.md, designs a CreateOrder use case named by intent, defines an OrderRepository port in application/interfaces/, and writes a failing test first using an in-memory fake of the port.",
+      "assertions": [
+        "Use case file is named CreateOrder (intent-based), not OrderService or OrderCreator",
+        "Defines an OrderRepository port interface in the application layer",
+        "Provides an in-memory fake implementation for testing",
+        "Writes a failing test before the implementation (TDD red-green-refactor)",
+        "Does not import any framework, ORM, or database library inside the use case",
+        "Uses DTOs (not entities) to cross the use case boundary",
+        "Stock validation lives in the domain or use case, not in the controller"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Should my Order entity extend the Django model class so I can save it directly?",
+      "expected_output": "The agent explains that entities must not depend on the ORM or framework. The Order entity stays pure; a separate persistence model or mapper in the infrastructure layer handles database concerns.",
+      "assertions": [
+        "Explicitly answers no — entities do not extend ORM model classes",
+        "Explains the dependency rule and how extending a framework class violates it",
+        "Proposes a mapper or adapter in infrastructure/persistence/ to translate between the entity and the ORM model",
+        "Mentions that the domain layer is framework-agnostic and testable without a database",
+        "References entities.md or repositories.md for deeper guidance"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "How do I write tests for my AuthenticateUser use case? It depends on a UserRepository and a PasswordHasher.",
+      "expected_output": "The agent reads references/tdd.md and describes using in-memory fakes for ports rather than mocks. Entity tests need no test doubles. Use case tests wire fakes through the constructor/dependency injection.",
+      "assertions": [
+        "Recommends in-memory fake implementations of UserRepository and PasswordHasher, not mocks",
+        "Shows fakes injected into the use case constructor or factory",
+        "Explains that use case tests run in-process with no database or HTTP",
+        "Notes that entity-only tests require no test doubles",
+        "Follows red-green-refactor: failing test first, then implementation",
+        "References tdd.md"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Our codebase has controllers/, models/, and views/ folders. Business logic is scattered across service classes. How do I migrate to Clean Architecture without rewriting everything?",
+      "expected_output": "The agent reads references/adding-features.md and references/boundaries.md, explains the strangler fig pattern, and outlines a use-case-at-a-time migration starting with the highest-value flow.",
+      "assertions": [
+        "Recommends an incremental migration, not a full rewrite",
+        "Identifies one use case (one flow) to migrate first",
+        "Extracts entities from existing models into src/domain/entities/",
+        "Introduces a port interface before touching infrastructure",
+        "Keeps old controllers delegating to new use cases during transition",
+        "Mentions the Screaming Architecture test (folders should describe what the app does)",
+        "References adding-features.md or boundaries.md"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Can you recommend the best Node.js ORM for my project and write the database schema?",
+      "expected_output": "The agent reframes the question: the ORM is a detail that lives in infrastructure/persistence/. It first helps shape the domain entities and repository ports, then implements persistence behind those ports — making the ORM swappable.",
+      "assertions": [
+        "Does not treat the ORM choice as the starting point",
+        "Designs entities and repository ports first, ORM choice second",
+        "Places any ORM code in src/infrastructure/persistence/ behind a repository interface",
+        "Explains that the database and ORM are plugins, not the core of the app",
+        "References repositories.md or infrastructure.md"
+      ],
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "Write a PaymentService class that handles Stripe charges, sends receipts, updates the order status, and logs to Sentry.",
+      "expected_output": "The agent flags that PaymentService is doing too much. It proposes a single-purpose use case (e.g., ChargePayment) that depends on ports (PaymentGateway, NotificationService, OrderRepository, Logger) and implements each port in infrastructure.",
+      "assertions": [
+        "Splits the work into a named use case (ChargePayment or similar intent-based name), not a generic Service class",
+        "Defines separate ports for payments, notifications, and logging",
+        "Places Stripe and Sentry clients in src/infrastructure/external/ as adapters implementing the ports",
+        "The use case does not import stripe or sentry packages directly",
+        "References solid.md (SRP) or adapters.md"
+      ],
+      "files": []
+    }
+  ]
+}

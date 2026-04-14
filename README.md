@@ -1,55 +1,79 @@
-# Clean Architecture Skills for Claude
+# Clean Architecture Skills
 
-A set of [Claude skills](https://docs.claude.com) that guide AI-assisted software development using **Clean Architecture** principles by Robert C. Martin (Uncle Bob).
+Agent Skills for AI-assisted software development using **Clean Architecture** principles by Robert C. Martin (Uncle Bob).
 
-These skills teach Claude to build software where the business rules are front and centre, the infrastructure is a swappable detail, and any developer can understand what the system does by glancing at the folder structure.
+These skills teach Claude Code (and any compliant AI agent) to build software where the business rules are front and centre, the infrastructure is a swappable detail, and any developer can understand what the system does by glancing at the folder structure.
 
 ## Why this exists
 
-When you ask Claude to build an app, it needs architectural guidance — otherwise you get framework-coupled spaghetti where business logic hides inside controllers, entities double as ORM models, and testing requires spinning up a database.
+When you ask an AI agent to build an app, it needs architectural guidance — otherwise you get framework-coupled spaghetti where business logic hides inside controllers, entities double as ORM models, and testing requires spinning up a database.
 
-These skills solve that. They give Claude a prescriptive, opinionated playbook for Clean Architecture so that every project it helps you build follows the same principled structure — regardless of language, framework, or database.
+These skills solve that. They give the agent a prescriptive, opinionated playbook so every project it helps you build follows the same principled structure — regardless of language, framework, or database.
 
-## What's inside
+## Skills
 
-```
-.claude/
-  skills/
-    clean-architecture/
-      SKILL.md                        # Main entry point — the dependency rule,
-                                      # folder structure, and core principles
-      references/
-        entities.md                   # Domain layer: entities, value objects,
-                                      # invariants, aggregates
-        use-cases.md                  # Application layer: use case design, ports,
-                                      # DTOs, error handling
-        repositories.md               # Repository pattern: port design, fakes,
-                                      # pagination, contract tests
-        adapters.md                   # Interface adapters: controllers, presenters,
-                                      # gateways, mapping
-        infrastructure.md             # Frameworks & drivers: persistence, web,
-                                      # external services, composition root
-        tdd.md                        # TDD workflow tailored for Clean Architecture
-        adding-features.md            # Step-by-step guide for extending existing
-                                      # codebases
-        solid.md                      # SOLID principles applied at every layer
-        boundaries.md                 # Boundary crossing, control flow vs.
-                                      # dependency, Humble Object pattern
-        component-principles.md       # Cohesion, coupling, and organising code
-                                      # into components
+| Skill | Version | Summary |
+|-------|---------|---------|
+| [clean-architecture](skills/clean-architecture/SKILL.md) | 1.0.0 | Dependency rule, layered folder structure, entities, use cases, adapters, infrastructure, and TDD workflow. |
+
+See [`VERSIONS.md`](VERSIONS.md) for the full version history.
+
+## Install
+
+### Claude Code (as a plugin)
+
+Clone this repo, then reference it from your Claude Code config as a local marketplace:
+
+```bash
+git clone https://github.com/ronaldlangeveld/clean-arch-skills.git
 ```
 
-## Design principles
+Then in Claude Code, add the local plugin pointing at this repo. The `.claude-plugin/marketplace.json` manifest registers every skill under `skills/`.
 
-**Language agnostic.** All examples use pseudocode. Works with TypeScript, Python, Go, Java, Rust, C# — anything.
+### Any Claude Code project (drop-in)
 
-**Framework agnostic.** No opinions on Express vs. Flask vs. Spring. The framework is a detail that lives in the outermost layer.
+Copy the skills directory into your project:
 
-**Database agnostic.** PostgreSQL, MongoDB, SQLite — doesn't matter. The database is a plugin behind a repository interface.
+```bash
+cp -r clean-arch-skills/skills/clean-architecture /path/to/your/project/.claude/skills/
+```
 
-**TDD built in.** Every feature starts with a failing test. Entity tests need no mocks. Use case tests use in-memory fakes. Integration tests hit real infrastructure.
+### Other AI agents
 
-**Highly prescriptive.** Exact folder structure, naming conventions, and file organisation. No ambiguity about where code goes.
+The skills conform to the [Agent Skills specification](https://agentskills.io/specification.md). Install under `.agents/skills/` (cross-agent) or the agent-specific skills directory.
+
+## Manual trigger
+
+If the agent doesn't pick up the skill automatically, reference it directly:
+
+> "Follow the clean-architecture skill to scaffold this project."
+>
+> "Use the clean architecture patterns from the skill when adding this feature."
+
+## The dependency rule
+
+This is the one rule everything else follows:
+
+**Source code dependencies must point inward only.** Nothing in an inner circle can know anything about something in an outer circle.
+
+```
+┌───────────────────────────────────────────────┐
+│  Infrastructure (DB, Web, External APIs)      │
+│  ┌─────────────────────────────────────────┐  │
+│  │  Adapters (Controllers, Gateways)       │  │
+│  │  ┌─────────────────────────────────┐    │  │
+│  │  │  Application (Use Cases)        │    │  │
+│  │  │  ┌─────────────────────────┐    │    │  │
+│  │  │  │  Domain (Entities)      │    │    │  │
+│  │  │  └─────────────────────────┘    │    │  │
+│  │  └─────────────────────────────────┘    │  │
+│  └─────────────────────────────────────────┘  │
+└───────────────────────────────────────────────┘
+
+Dependencies point INWARD →
+```
+
+Entities know nothing about use cases. Use cases know nothing about controllers. Controllers know nothing about which database you're using. The database, the web framework, and the UI are plugins.
 
 ## The folder structure it prescribes
 
@@ -73,91 +97,54 @@ src/
 │   ├── persistence/           # Database implementations
 │   ├── web/                   # HTTP server, routing, middleware
 │   ├── external/              # Third-party API clients
-│   └── config/               # Environment, DI container, app bootstrap
+│   └── config/                # Environment, DI container, app bootstrap
 │
 └── main.*                     # Composition root — wires everything together
 ```
 
-The test is simple: someone looking at `application/use-cases/` should immediately know every operation the system supports. Someone looking at `domain/entities/` should see the core business concepts. The architecture screams what the application *does*, not what framework it uses.
-
-## How to use
-
-### With Claude Code
-
-Clone this repo (or copy the `.claude/` directory into your project), then use Claude Code as usual. The skill triggers automatically when you're building apps, adding features, creating entities, writing use cases, or discussing architecture.
-
-```bash
-# Copy into your project
-cp -r .claude/ /path/to/your/project/.claude/
-
-# Or clone and start a new project here
-claude
-```
-
-### With Cowork
-
-Select the folder containing these skills when starting a Cowork session. The skill will be available automatically.
-
-### Manual trigger
-
-If Claude doesn't pick up the skill automatically, you can reference it directly:
-
-> "Follow the clean-architecture skill to scaffold this project"
-
-> "Use the clean architecture patterns from the skill when adding this feature"
-
-## The dependency rule
-
-This is the one rule everything else follows:
-
-**Source code dependencies must point inward only.**
-
-Nothing in an inner circle can know anything about something in an outer circle.
-
-```
-┌─────────────────────────────────────────────┐
-│  Infrastructure (DB, Web, External APIs)     │
-│  ┌─────────────────────────────────────┐     │
-│  │  Adapters (Controllers, Gateways)   │     │
-│  │  ┌─────────────────────────────┐    │     │
-│  │  │  Application (Use Cases)    │    │     │
-│  │  │  ┌─────────────────────┐    │    │     │
-│  │  │  │  Domain (Entities)  │    │    │     │
-│  │  │  └─────────────────────┘    │    │     │
-│  │  └─────────────────────────────┘    │     │
-│  └─────────────────────────────────────┘     │
-└─────────────────────────────────────────────┘
-
-Dependencies point INWARD →
-```
-
-Entities know nothing about use cases. Use cases know nothing about controllers. Controllers know nothing about which database you're using. The database, the web framework, and the UI are all plugins.
+Someone looking at `application/use-cases/` should immediately know every operation the system supports. Someone looking at `domain/entities/` should see the core business concepts. The architecture screams what the application *does*, not what framework it uses.
 
 ## What each reference doc covers
 
-| Doc | When to read it | What you'll learn |
-|-----|----------------|-------------------|
-| `entities.md` | Creating or modifying domain models | Entity design, value objects, invariants, aggregates, identity |
-| `use-cases.md` | Adding a business operation | Use case anatomy, ports/interfaces, DTOs, error handling |
-| `repositories.md` | Working with data access and persistence ports | Port design, query methods, pagination, in-memory fakes, contract tests |
-| `adapters.md` | Connecting use cases to the outside world | Controllers, presenters, gateways, data mapping |
-| `infrastructure.md` | Setting up DB, web server, or external APIs | Persistence, composition root, configuration, DI |
-| `tdd.md` | Writing or structuring tests | Test strategy per layer, fakes vs. mocks, test data builders |
-| `adding-features.md` | Extending an existing codebase | Inside-out workflow, refactoring patterns, strangler fig |
-| `solid.md` | Making design decisions about structure | SRP, OCP, LSP, ISP, DIP applied to each architectural layer |
-| `boundaries.md` | Reasoning about boundary crossings | Control flow vs. dependency direction, Humble Object pattern, partial boundaries |
-| `component-principles.md` | Organising code as the codebase grows | Cohesion (REP, CCP, CRP), coupling (ADP, SDP, SAP), feature vs. layer grouping |
+| Doc | When to read it |
+|-----|-----------------|
+| [`entities.md`](skills/clean-architecture/references/entities.md) | Creating or modifying domain models |
+| [`use-cases.md`](skills/clean-architecture/references/use-cases.md) | Adding a business operation |
+| [`repositories.md`](skills/clean-architecture/references/repositories.md) | Working with data access and persistence ports |
+| [`adapters.md`](skills/clean-architecture/references/adapters.md) | Connecting use cases to the outside world |
+| [`infrastructure.md`](skills/clean-architecture/references/infrastructure.md) | Setting up DB, web server, or external APIs |
+| [`tdd.md`](skills/clean-architecture/references/tdd.md) | Writing or structuring tests |
+| [`adding-features.md`](skills/clean-architecture/references/adding-features.md) | Extending an existing codebase |
+| [`solid.md`](skills/clean-architecture/references/solid.md) | Making design decisions about structure |
+| [`boundaries.md`](skills/clean-architecture/references/boundaries.md) | Reasoning about boundary crossings |
+| [`component-principles.md`](skills/clean-architecture/references/component-principles.md) | Organising code as the codebase grows |
+
+## Design principles
+
+- **Language agnostic.** Examples use pseudocode. Works with TypeScript, Python, Go, Java, Rust, C#.
+- **Framework agnostic.** No opinions on Express vs. Flask vs. Spring. The framework is a detail.
+- **Database agnostic.** PostgreSQL, MongoDB, SQLite — the database is a plugin behind a repository interface.
+- **TDD built in.** Every feature starts with a failing test. Entity tests need no mocks; use case tests use in-memory fakes; integration tests hit real infrastructure.
+- **Prescriptive.** Exact folder structure, naming conventions, and file organisation. No ambiguity.
+
+## Validation
+
+Validate the repository locally:
+
+```bash
+./validate-skills.sh
+```
+
+CI runs the same script on every PR that touches a `SKILL.md`.
 
 ## Contributing
 
-Contributions welcome. If you find a principle that's unclear, a pattern that's missing, or an example that could be better — open an issue or PR.
-
-The bar for changes: does this make it easier for a developer (working with Claude) to build well-structured software? If yes, it belongs.
+See [`CONTRIBUTING.md`](CONTRIBUTING.md). The bar for changes: does this make it easier for a developer (working with an AI agent) to build well-structured software? If yes, it belongs.
 
 ## Licence
 
-MIT
+[MIT](LICENSE)
 
 ## Acknowledgements
 
-Based on the work of Robert C. Martin (Uncle Bob), particularly *Clean Architecture: A Craftsman's Guide to Software Structure and Design* (2017). These skills distill those principles into an actionable, AI-friendly format.
+Based on the work of Robert C. Martin (Uncle Bob), particularly *Clean Architecture: A Craftsman's Guide to Software Structure and Design* (2017). These skills distil those principles into an actionable, agent-friendly format.

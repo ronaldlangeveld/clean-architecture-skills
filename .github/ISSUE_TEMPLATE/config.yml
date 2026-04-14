@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Clean Architecture reference
+    url: https://www.oreilly.com/library/view/clean-architecture-a/9780134494272/
+    about: Robert C. Martin's book — the source material for these skills.

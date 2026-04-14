@@ -1,0 +1,23 @@
+{
+  "name": "clean-arch-skills",
+  "owner": {
+    "name": "Ronald Langeveld",
+    "url": "https://github.com/ronaldlangeveld"
+  },
+  "metadata": {
+    "description": "Clean Architecture skills for Claude Code and AI agents. Prescriptive, framework-agnostic guidance based on Robert C. Martin's Clean Architecture.",
+    "version": "1.0.0",
+    "repository": "https://github.com/ronaldlangeveld/clean-arch-skills"
+  },
+  "plugins": [
+    {
+      "name": "clean-arch-skills",
+      "description": "Clean Architecture skill — dependency rule, layered folder structure, entities, use cases, adapters, infrastructure, and TDD workflow.",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/clean-architecture"
+      ]
+    }
+  ]
+}

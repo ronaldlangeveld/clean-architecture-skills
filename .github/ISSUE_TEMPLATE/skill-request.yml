@@ -1,0 +1,37 @@
+name: Skill request or improvement
+description: Request a new skill, a new reference doc, or an improvement to an existing one.
+title: "[skill] "
+labels: ["skill"]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind of change?
+      options:
+        - New skill
+        - New reference doc
+        - Improve existing skill or reference
+        - Fix an error or outdated guidance
+    validations:
+      required: true
+  - type: input
+    id: target
+    attributes:
+      label: Target skill or reference
+      description: Path (e.g. `skills/clean-architecture/references/use-cases.md`) or name of the new skill.
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Why does an agent or developer need this? What goes wrong without it?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What should the skill or doc say? Include example triggers or sections if possible.
+    validations:
+      required: true
